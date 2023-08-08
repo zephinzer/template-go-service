@@ -101,7 +101,7 @@ See the [`./Makefile`](Makefile) for full details
 
 Sample connection code with test pings can be found in [`./cmd/app/commands/debug`](./cmd/app/commands/debug).
 
-All database packages has the interface:
+All database packages at [`./internal/database`](./internal/database) expose the global interface:
 
 - `Db(name ...string)`: Use this to retrieve a database connection. If `name` is specified, the named connection will be returned.
 - `Init(opts database.ConnectionOpts, name ...string)`: Use this to initialise a database connection. If `name` is specified, a named connection will be created and added to a map of connections which you can retrieve using `Db(connectionName)`.
@@ -121,9 +121,9 @@ APP_NAME := "app2"
 
 You will also need to:
 1. Rename the module in `go.mod` to `app2` and run `go mod vendor`
-2. Rename the chart in `./deploy/charts/app/Charts.yaml` to `app2`
+2. Rename the chart in `./deploy/charts/app/Chart.yaml` to `app2`
 3. Rename the directory `./deploy/charts/app` to `./deploy/charts/app2`
-4. Rename the directory in `./c2. Rmd/app` to `./cmd/app2`
+4. Rename the directory in `./cmd/app` to `./cmd/app2`
 
 #### Changing the Docker image URL
 
@@ -147,10 +147,12 @@ An example with both controllers and HTTP interfaces can be found in `./internal
 
 This repository being a boilerplate contains some redunancies like database code which might not be used depending on your service. Before going to production:
 
-- [ ] Rename the application if you'd like (`app` runs perfectly)
+- [ ] Helm chart is name appropriately
+- [ ] Service is named appropriately
 - [ ] Remove the `./cmd/app/commands/debug/*` directories that aren't used. Eg if MongoDB is not used, remove `./cmd/app/commands/debug/mongo` and remove the reference to it in `./cmd/app/commands/debug/debug.go`. This way, code for handling that database type will not be included in your binary.
+- [ ] Disable Swagger in production (unless you want it in production)
 - [ ] Generate fresh keys on a privileged system and delete any keys that come with the boilerplate
 
 # Licensing
 
-See [./LICENSE](LICENSE). Basically, do whatever you want with this.
+See [`./LICENSE`](./LICENSE). Basically, do whatever you want with this.
