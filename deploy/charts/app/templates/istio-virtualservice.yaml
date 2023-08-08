@@ -1,0 +1,39 @@
+{{- if .Values.istio.enabled -}}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ include "app.name" . }}
+  annotations:
+  {{- if .Values.externalDns.enabled -}}
+    external-dns.alpha.kubernetes.io/target: {{ .Values.externalDns.target.hostname }}
+  {{- end -}}
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+spec:
+  {{- if (gt (len .Values.istio.hosts) 0) }}
+  hosts:
+    {{- range $host := .Values.istio.hosts }}
+    - {{ $host }}
+    {{- end }}
+  {{- end }}
+  {{- if (gt (len .Values.istio.gateway.fqdns) 0) }}
+  gateways:
+    {{- range $ref := .Values.istio.gateway.refs }}
+    - {{ $ref }}
+    {{- end }}
+  {{- end }}
+  http:
+  {{- if (gt (len .Values.istio.additionalHttpMatchers) 0) }}
+  {{- range $httpMatcher := .Values.istio.additionalHttpMatchers }}
+  - {{ $httpMatcher | toYaml | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: {{ include "app.fullname" . }}
+        port:
+          number: {{ .Values.service.port }}
+{{- end -}}

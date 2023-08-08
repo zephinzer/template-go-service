@@ -1,0 +1,102 @@
+basePath: /
+definitions:
+  app_internal_api_types.HttpResponse:
+    properties:
+      data:
+        description: |-
+          Data contains any logical data to be returned to
+          the client
+      error:
+        description: |-
+          Error when set indicates that the response is not
+          successful
+      message:
+        description: Message is an optional message
+        type: string
+    type: object
+  internal_example.customResponse:
+    properties:
+      number:
+        description: Number is a numerical property
+        type: integer
+    type: object
+  internal_example.customResponseHttpResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/internal_example.customResponse'
+        description: Data demonstrates defining a customResponse
+      error:
+        description: |-
+          Error when set indicates that the response is not
+          successful
+      message:
+        description: Message is an optional message
+        type: string
+    type: object
+info:
+  contact: {}
+  description: This is an API
+  title: Example HTTP API
+  version: 1.0.0
+paths:
+  /api/example/200:
+    get:
+      description: Returns 200 and demonstrates a basic HTTP handler
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app_internal_api_types.HttpResponse'
+      summary: Example endpoint returning 200
+      tags:
+      - "200"
+  /api/example/200/custom-response:
+    get:
+      description: Returns 200 and demonstrates documenting a custom response with
+        Swagger
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_example.customResponseHttpResponse'
+      summary: Example endpoint returning 200
+      tags:
+      - "200"
+  /api/example/200/with/{input}:
+    get:
+      description: Returns 200 and demonstrates path parameter usage
+      parameters:
+      - description: Any input you want
+        in: path
+        name: input
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app_internal_api_types.HttpResponse'
+      summary: Example endpoint returning 200
+      tags:
+      - "200"
+  /api/example/404:
+    get:
+      description: Returns 404 and demonstrates setting of status code
+      produces:
+      - application/json
+      responses:
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/app_internal_api_types.HttpResponse'
+      summary: Example endpoint returning 404
+      tags:
+      - "404"
+swagger: "2.0"
