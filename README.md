@@ -33,6 +33,23 @@ This is a template repository that provides boilerplate code for a service writt
 | `/tests` | Contains test artifacts |
 | `/vendor` | Contains dependenices |
 
+## CLI information
+
+To test the CLI you can run `go run ./cmd/app`, help information should be available.
+
+The following commands are included in the boilerplate which you can remove if not applicable to your project:
+
+- `app debug kafka` - tests the connection to Kafka (run `make kafka-jks` and `make start-kafka` before this)
+- `app debug mongo` - tests the connection to MongoDB (run `make start-mongo` before this)
+- `app debug mysql` - tests the connection to MySQL (run `make start-mysql` before this)
+- `app debug nats` - tests the connection to NATS (run `make start-nats` before this)
+- `app debug postgres` - tests the connection to PostgreSQL (run `make start-postgres` before this)
+- `app debug redis` - tests the connection to Redis (run `make start-redis` before this)
+- `app start job` - sample command to start a one-time job
+- `app start server` - sample command to start the server
+- `app start worker` - sample command to start a worker service
+
+
 ## Notable packages and software used
 
 ### Go
