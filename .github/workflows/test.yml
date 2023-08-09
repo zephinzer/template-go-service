@@ -15,8 +15,10 @@ jobs:
         run: make install-swaggo
       - name: Generate Swagger documentation
         run: |
-          export PATH=${PATH}:$(go env GOPATH)/bin
-          make docs-swaggo
+          go env GOBIN;
+          go env GOPATH;
+          export PATH=${PATH}:$(go env GOPATH)/bin;
+          make docs-swaggo;
       - name: Run tests
         run: make test
       - name: Verify binary build
