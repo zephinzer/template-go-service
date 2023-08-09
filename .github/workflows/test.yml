@@ -12,10 +12,9 @@ jobs:
         with:
           go-version: '>=1.20.0'
       - name: Install custom dependencies
-        run: |
-          make install-swaggo
+        run: make install-swaggo
       - name: Generate Swagger documentation
-        run: make swaggo-docs
+        run: make docs-swaggo
       - name: Run tests
         run: make test
       - name: Verify binary build
