@@ -1,0 +1,8 @@
+name: app
+run-name: ${{ github.actor }} is running pipeline
+jobs:
+  hello-world:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "hello world"
