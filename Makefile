@@ -79,7 +79,7 @@ deploy-kind:
 
 install-swaggo:
 	@echo "installing swag from ${SWAGGO_URL}..."
-	go install -u ${SWAGGO_URL}/cmd/swag@latest
+	go get -u ${SWAGGO_URL}/cmd/swag@latest
 
 kafka-jks: # ref https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/20.0.x?topic=emitter-preparing-ssl-certificates-kafka
 	rm -rf ${KAFKA_CERTS_PATH}/*
