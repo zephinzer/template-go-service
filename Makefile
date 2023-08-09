@@ -136,6 +136,6 @@ start-redis:
 	@docker-compose run redis
 
 test:
-	@go test -v -coverpkg=./... -coverprofile=./tests/cover.out ./... -not -path './vendor/*'
+	@go test -v -coverpkg=./... -coverprofile=./tests/cover.out ./...
 	@go tool cover -func ./tests/cover.out
 	@go tool cover -html ./tests/cover.out -o ./tests/cover.html

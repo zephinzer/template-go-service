@@ -16,7 +16,8 @@ type HttpResponse struct {
 	// successful
 	Error error `json:"error,omitempty"`
 
-	// Message is an optional message
+	// Message is an optional message that will be overridden
+	// with the error message if an error occurred
 	Message *string `json:"message,omitempty"`
 
 	// StatusCode is the HTTP status code
@@ -27,7 +28,9 @@ func (hr HttpResponse) WithFiber(c *fiber.Ctx) error {
 	statusCode := http.StatusOK
 	if hr.Error != nil {
 		statusCode = http.StatusInternalServerError
-		logrus.Warnf("failed to execute controller: %s", hr.Error)
+		logrus.Warnf("http[%v] returned: %s", statusCode, hr.Error)
+		errorMessage := hr.Error.Error()
+		hr.Message = &errorMessage
 		hr.Error = nil
 	}
 	if hr.StatusCode > 0 {
