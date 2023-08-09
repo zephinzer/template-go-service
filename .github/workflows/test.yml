@@ -1,5 +1,6 @@
 name: app
 run-name: ${{ github.actor }} is running pipeline
+on: [push]
 jobs:
   hello-world:
     runs-on: ubuntu-latest
