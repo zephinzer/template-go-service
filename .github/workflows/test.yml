@@ -14,7 +14,9 @@ jobs:
       - name: Install custom dependencies
         run: make install-swaggo
       - name: Generate Swagger documentation
-        run: make docs-swaggo
+        run: |
+          export PATH=${PATH}:$(go env GOPATH)/bin
+          make docs-swaggo
       - name: Run tests
         run: make test
       - name: Verify binary build
