@@ -13,15 +13,28 @@ jobs:
           go-version: '>=1.20.0'
       - name: Install custom dependencies
         run: make install-swaggo
+      - name: Upload dependencies
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependencies
+          path: ./vendor
   tests:
     runs-on: ubuntu-latest
     steps:
+      - name: Download dependencies
+        uses: actions/download-artifact@v3
+        with:
+          name: dependencies
       - name: Run tests
         run: make test
     needs: [setup]
   builds:
     runs-on: ubuntu-latest
     steps:
+      - name: Download dependencies
+        uses: actions/download-artifact@v3
+        with:
+          name: dependencies
       - name: Generate Swagger documentation
         run: |
           go env GOBIN;
