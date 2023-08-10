@@ -35,7 +35,15 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-      - run: ls -al
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Initialise Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '>=1.20.0'
+      - run: |
+          ls -al;
+          du -d 1 .;
       - name: Restore code dependencies
         uses: actions/cache/restore@v3
         with:
@@ -43,13 +51,21 @@ jobs:
           path: |
             ./vendor
             $(go env GO)/bin
-      - run: ls -al
+      - run: |
+          ls -al;
+          du -d 1 .;
       - name: Run tests
         run: make test
     needs: [setup]
   builds:
     runs-on: ubuntu-latest
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Initialise Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '>=1.20.0'
       - run: ls -al
       - name: Restore code dependencies
         uses: actions/cache/restore@v3
