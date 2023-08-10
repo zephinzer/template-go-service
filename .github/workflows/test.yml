@@ -33,3 +33,4 @@ jobs:
         run: make binary
       - name: Verify image build
         run: make image
+    needs: [setup]
