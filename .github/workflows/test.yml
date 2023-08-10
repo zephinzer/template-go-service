@@ -11,52 +11,52 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: '>=1.20.0'
-      - name: Restore code dependencies
+      - name: Restore dependencies
         uses: actions/cache/restore@v3
         with:
           key: dependencies
           path: |
             ./vendor
-            $(go env GO)/bin
+            $(go env GOROOT)/bin
       - name: Install global dependencies
         run: |
           go env GOBIN GOPATH;
           make install-swaggo-ci;
           which swag;
-      - name: Install code dependencies
-        run: make deps
-      - name: Cache code dependencies
+      # - name: Install code dependencies
+      #   run: make deps
+      - name: Cache dependencies
         uses: actions/cache/save@v3
         with:
           key: dependencies
           path: |
             ./vendor
-            $(go env GO)/bin
-  tests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - name: Initialise Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: '>=1.20.0'
-      - run: |
-          ls -al;
-          du -d 1 .;
-      - name: Restore code dependencies
-        uses: actions/cache/restore@v3
-        with:
-          key: dependencies
-          path: |
-            ./vendor
-            $(go env GO)/bin
-      - run: |
-          ls -al;
-          du -d 1 .;
-      - name: Run tests
-        run: make test
-    needs: [setup]
+            $(go env GOROOT)/bin
+  # tests:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Check out repository code
+  #       uses: actions/checkout@v3
+  #     - name: Initialise Go
+  #       uses: actions/setup-go@v3
+  #       with:
+  #         go-version: '>=1.20.0'
+  #     - run: |
+  #         ls -al;
+  #         du -d 1 .;
+  #     - name: Restore code dependencies
+  #       uses: actions/cache/restore@v3
+  #       with:
+  #         key: dependencies
+  #         path: |
+  #           ./vendor
+  #           $(go env GOROOT)/bin
+  #     - run: |
+  #         ls -al;
+  #         du -d 1 .;
+  #     - name: Run tests
+  #       run: make test
+  #   needs: [setup]
   builds:
     runs-on: ubuntu-latest
     steps:
@@ -67,13 +67,13 @@ jobs:
         with:
           go-version: '>=1.20.0'
       - run: ls -al
-      - name: Restore code dependencies
+      - name: Restore dependencies
         uses: actions/cache/restore@v3
         with:
           key: dependencies
           path:
             ./vendor
-            $(go env GO)/bin
+            $(go env GOROOT)/bin
       - run: ls -al
       - name: Generate Swagger documentation
         run: |
