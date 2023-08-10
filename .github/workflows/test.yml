@@ -35,22 +35,30 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
+      - run: ls -al
       - name: Restore code dependencies
         uses: actions/cache/restore@v3
         with:
           key: dependencies
-          path: ./vendor
+          path: |
+            ./vendor
+            $(go env GO)/bin
+      - run: ls -al
       - name: Run tests
         run: make test
     needs: [setup]
   builds:
     runs-on: ubuntu-latest
     steps:
+      - run: ls -al
       - name: Restore code dependencies
         uses: actions/cache/restore@v3
         with:
           key: dependencies
-          path: ./vendor
+          path:
+            ./vendor
+            $(go env GO)/bin
+      - run: ls -al
       - name: Generate Swagger documentation
         run: |
           go env GOBIN;
