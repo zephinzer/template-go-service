@@ -19,7 +19,7 @@ jobs:
       - name: Install global dependencies
         run: |
           go env GOBIN BOPATH;
-          make install-swaggo;
+          make install-swaggo-ci;
           which swag;
       - name: Install code dependencies
         run: make deps
