@@ -32,7 +32,7 @@ ifeq ("${GOOS}", "windows")
 BINARY_EXT := ".exe"
 endif
 
-binary: swaggo-docs
+binary: docs-swaggo
 	@echo "building binary for ${APP_NAME} for os/arch $$(go env GOOS)/$$(go env GOARCH)..."
 	@mkdir -p "${BIN_PATH}"
 	@go build \
