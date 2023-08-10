@@ -2,7 +2,7 @@ name: app
 run-name: ${{ github.actor }} is running pipeline
 on: [push]
 jobs:
-  installation:
+  setup:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -13,14 +13,22 @@ jobs:
           go-version: '>=1.20.0'
       - name: Install custom dependencies
         run: make install-swaggo
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run tests
+        run: make test
+    needs: [setup]
+  builds:
+    runs-on: ubuntu-latest
+    steps:
       - name: Generate Swagger documentation
         run: |
           go env GOBIN;
           go env GOPATH;
+          go env GOROOT;
           export PATH=${PATH}:$(go env GOPATH)/bin;
           make docs-swaggo;
-      - name: Run tests
-        run: make test
       - name: Verify binary build
         run: make binary
       - name: Verify image build
