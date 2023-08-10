@@ -7,36 +7,45 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
+      - name: Restore code dependencies
+        uses: actions/cache/restore@v3
+        with:
+          key: dependencies
+          path: ./vendor
       - name: Install system dependencies
         uses: actions/setup-go@v4
         with:
           go-version: '>=1.20.0'
       - name: Install code dependencies
         run: make deps
-      - name: Install custom dependencies
-        run: make install-swaggo
-      - name: Upload dependencies
-        uses: actions/upload-artifact@v3
+      - name: Cache code dependencies
+        uses: actions/cache/save@v3
         with:
-          name: dependencies
+          key: dependencies
           path: ./vendor
+      - name: Install custom dependencies
+        run: |
+          make install-swaggo;
+          which swag;
   tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Download dependencies
-        uses: actions/download-artifact@v3
+      - name: Restore code dependencies
+        uses: actions/cache/restore@v3
         with:
-          name: dependencies
+          key: dependencies
+          path: ./vendor
       - name: Run tests
         run: make test
     needs: [setup]
   builds:
     runs-on: ubuntu-latest
     steps:
-      - name: Download dependencies
-        uses: actions/download-artifact@v3
+      - name: Restore code dependencies
+        uses: actions/cache/restore@v3
         with:
-          name: dependencies
+          key: dependencies
+          path: ./vendor
       - name: Generate Swagger documentation
         run: |
           go env GOBIN;
