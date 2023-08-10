@@ -12,6 +12,10 @@ jobs:
         with:
           key: dependencies
           path: ./vendor
+      - name: Install global dependencies
+        run: |
+          make install-swaggo;
+          which swag;
       - name: Install system dependencies
         uses: actions/setup-go@v4
         with:
@@ -23,10 +27,6 @@ jobs:
         with:
           key: dependencies
           path: ./vendor
-      - name: Install custom dependencies
-        run: |
-          make install-swaggo;
-          which swag;
   tests:
     runs-on: ubuntu-latest
     steps:
