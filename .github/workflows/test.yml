@@ -8,82 +8,93 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Initialise Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: '>=1.20.0'
       - name: Restore dependencies
         uses: actions/cache/restore@v3
         with:
           key: dependencies
-          path: |
-            ./vendor
-            $(go env GOROOT)/bin
-      - name: Install global dependencies
-        run: |
-          go env GOBIN GOPATH;
-          make install-swaggo-ci;
-          which swag;
-      # - name: Install code dependencies
-      #   run: make deps
+          path: ./vendor
+      - name: Install dependencies
+        run: make deps
       - name: Cache dependencies
         uses: actions/cache/save@v3
         with:
           key: dependencies
-          path: |
-            ./vendor
-            $(go env GOROOT)/bin
-  # tests:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v3
-  #     - name: Initialise Go
-  #       uses: actions/setup-go@v3
-  #       with:
-  #         go-version: '>=1.20.0'
-  #     - run: |
-  #         ls -al;
-  #         du -d 1 .;
-  #     - name: Restore code dependencies
-  #       uses: actions/cache/restore@v3
-  #       with:
-  #         key: dependencies
-  #         path: |
-  #           ./vendor
-  #           $(go env GOROOT)/bin
-  #     - run: |
-  #         ls -al;
-  #         du -d 1 .;
-  #     - name: Run tests
-  #       run: make test
-  #   needs: [setup]
-  builds:
+          path: ./vendor
+      - name: Generate Swagger documentation
+        run: |
+          make install-swaggo-ci;
+          make docs-swaggo;
+      - name: Cache Swagger documentation
+        uses: actions/cache/save@v3
+        with:
+          key: swagger-documentation
+          path: ./internal/docs
+  test-this-mf:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Initialise Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: '>=1.20.0'
-      - run: ls -al
       - name: Restore dependencies
         uses: actions/cache/restore@v3
         with:
           key: dependencies
-          path:
-            ./vendor
-            $(go env GOROOT)/bin
-      - run: ls -al
-      - name: Generate Swagger documentation
-        run: |
-          go env GOBIN;
-          go env GOPATH;
-          go env GOROOT;
-          export PATH=${PATH}:$(go env GOPATH)/bin;
-          make docs-swaggo;
-      - name: Verify binary build
-        run: make binary
-      - name: Verify image build
-        run: make image
+          path: ./vendor
+      - name: Restore Swagger documentation
+        uses: actions/cache/restore@v3
+        with:
+          key: swagger-documentation
+          path: ./internal/docs
+      - name: Run tests
+        run: make test
     needs: [setup]
+  build-binary:
+    runs-on: ubuntu-latest
+    needs: [setup, documentation]
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Initialise Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.20.0'
+      - name: Restore dependencies
+        uses: actions/cache/restore@v3
+        with:
+          key: dependencies
+          path: ./vendor
+      - name: Restore Swagger documentation
+        uses: actions/cache/restore@v3
+        with:
+          key: swagger-documentation
+          path: ./internal/docs
+      - name: Build binary
+        run: make binary
+  build-docker-image:
+    runs-on: ubuntu-latest
+    needs: [setup, documentation]
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Initialise Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.20.0'
+      - name: Restore dependencies
+        uses: actions/cache/restore@v3
+        with:
+          key: dependencies
+          path: ./vendor
+      - name: Restore Swagger documentation
+        uses: actions/cache/restore@v3
+        with:
+          key: swagger-documentation
+          path: ./internal/docs
+      - name: Build image
+        run: make image
