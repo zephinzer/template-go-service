@@ -72,7 +72,7 @@ func run(command *cobra.Command, args []string) error {
 	}
 	pingTimeoutCtx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
-	if err := connection.Ping(pingTimeoutCtx, &readpref.ReadPref{}); err != nil {
+	if err := connection.Ping(pingTimeoutCtx, readpref.Primary()); err != nil {
 		return fmt.Errorf("failed to ping mongo: %s", err)
 	}
 	disconnectCtx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
