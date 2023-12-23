@@ -1,0 +1,78 @@
+name: app
+run-name: ${{ github.actor }} is running pipeline
+on: [push]
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Initialise Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.20.0'
+      - name: Restore dependencies
+        uses: actions/cache/restore@v3
+        with:
+          key: dependencies
+          path: ./vendor
+      - name: Install dependencies
+        run: make deps
+      - name: Cache dependencies
+        uses: actions/cache/save@v3
+        with:
+          key: dependencies
+          path: ./vendor
+      - name: Generate Swagger documentation
+        run: |
+          make install-swaggo-ci;
+          make docs-swaggo;
+      - name: Cache Swagger documentation
+        uses: actions/cache/save@v3
+        with:
+          key: swagger-documentation
+          path: ./internal/docs
+  test-this-mf:
+    runs-on: ubuntu-latest
+    needs: [setup]
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Initialise Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.20.0'
+      - name: Restore dependencies
+        uses: actions/cache/restore@v3
+        with:
+          key: dependencies
+          path: ./vendor
+      - name: Restore Swagger documentation
+        uses: actions/cache/restore@v3
+        with:
+          key: swagger-documentation
+          path: ./internal/docs
+      - name: Run tests
+        run: make test
+  build-docker-image:
+    runs-on: ubuntu-latest
+    needs: [setup]
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Initialise Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.20.0'
+      - name: Restore dependencies
+        uses: actions/cache/restore@v3
+        with:
+          key: dependencies
+          path: ./vendor
+      - name: Restore Swagger documentation
+        uses: actions/cache/restore@v3
+        with:
+          key: swagger-documentation
+          path: ./internal/docs
+      - name: Build image
+        run: make image

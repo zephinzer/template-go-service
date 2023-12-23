@@ -1,15 +1,51 @@
+######################
+# app configurations #
+######################
+## set this to the namespace of your app or organisation
+## of your app, this is used for build artifacts, not the
+## deployment
+APP_NAMESPACE := app
+
+## set this to the universal identifier of your app
 APP_NAME := app
+
+## this assumes starting the server, set it to anything you want for
+## `make start` to trigger
 ARGS_START := start server
+
+#######################
+# path configurations #
+#######################
 BIN_PATH := ./bin
 CMD_PATH := ./cmd
 DOCS_OUTPUT_PATH := ./internal/docs
 HELM_CHARTS_PATH := ./deploy/charts
-IMAGE_PATH := ${APP_NAME}/${APP_NAME}
+
+########################
+# build configurations #
+########################
+## this is the hostname of the image registry where your built image will
+## be published to
 IMAGE_REGISTRY := docker.io
+
+## this is the rest of the path of the image
+IMAGE_PATH := ${APP_NAMESPACE}/${APP_NAME}
+
+## this is the image tag, set this to something like the version or some
+## identifier of the version of your application
 IMAGE_TAG := latest
+
+######################
+# ops configurations #
+######################
+## kubernetes configurations
 K8S_NAMESPACE := default
+
+## kafka configurations
 KAFKA_ALIAS := localhost
 KAFKA_CERTS_PATH := ./.data/kafka/config/certs
+
+## swaggo url
 SWAGGO_URL := github.com/swaggo/swag
 
 # everything before this next line is configurable in the Makefile.properties
@@ -32,13 +68,14 @@ ifeq ("${GOOS}", "windows")
 BINARY_EXT := ".exe"
 endif
 
-binary: swaggo-docs
+binary: docs
 	@echo "building binary for ${APP_NAME} for os/arch $$(go env GOOS)/$$(go env GOARCH)..."
 	@mkdir -p "${BIN_PATH}"
 	@go build \
 		-ldflags "\
 			-extldflags 'static' -s -w \
 			-X ${APP_NAME}/internal/constants.AppName=${APP_NAME} \
+			-X ${APP_NAME}/internal/constants.BuildTimestamp=$$(date --utc +'%Y-%m-%dT%H:%M:%S') \
 			-X ${APP_NAME}/internal/constants.Version=$$(git rev-parse --abbrev-ref HEAD)-$$(git rev-parse HEAD | head -c 6) \
 		" \
 		-o "${BIN_PATH}/${APP_NAME}${BINARY_EXT}" \
@@ -50,8 +87,12 @@ deps:
 	@go mod tidy
 	@go mod vendor
 
+docs:
+	@echo "updating documentation"
+	@$(MAKE) docs-swaggo
+
 docs-swaggo: 
-	@echo "generating documentation package..."
+	@echo "generating swagger documentation package..."
 	swag init \
 		--generalInfo "./internal/api/api.go" \
 		--output "${DOCS_OUTPUT_PATH}" \
@@ -60,7 +101,7 @@ docs-swaggo:
 		--parseDepth 8
 
 image:
-	@echo "building image ${IMAGE_URL}:${IMAGE_TAG}..."addr
+	@echo "building image ${IMAGE_URL}:${IMAGE_TAG}..."
 	docker build -t ${IMAGE_URL}:${IMAGE_TAG} .
 
 deploy-k8s:
@@ -79,7 +120,11 @@ deploy-kind:
 
 install-swaggo:
 	@echo "installing swag from ${SWAGGO_URL}..."
-	go install -u ${SWAGGO_URL}/cmd/swag@latest
+	go get -u ${SWAGGO_URL}/cmd/swag@latest
+
+install-swaggo-ci:
+	@echo "installing swag from ${SWAGGO_URL}..."
+	go install ${SWAGGO_URL}/cmd/swag@latest
 
 kafka-jks: # ref https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/20.0.x?topic=emitter-preparing-ssl-certificates-kafka
 	rm -rf ${KAFKA_CERTS_PATH}/*
@@ -108,7 +153,12 @@ kind-load: image
 	@kind load docker-image ${IMAGE_URL}:${IMAGE_TAG} --name ${KIND_CLUSTER_NAME}
 
 nats-nkey:
-	nk -gen user -pubout
+	@echo "generating nkey for use with nats..."
+	@nk -gen user -pubout
+
+publish-image: image
+	docker tag ${IMAGE_URL}:${IMAGE_TAG} ${IMAGE_URL}:$$(git branch --show-current)-$$(git rev-parse HEAD | head -c 8)
+	docker push ${IMAGE_URL}:$$(git branch --show-current)-$$(git rev-parse HEAD | head -c 8)
 
 start: docs
 	@go run "${CMD_PATH}/${APP_NAME}" ${ARGS_START}
@@ -136,6 +186,6 @@ start-redis:
 	@docker-compose run redis
 
 test:
-	@go test -v -coverpkg=./... -coverprofile=./tests/cover.out ./... -not -path './vendor/*'
+	@go test -v -coverpkg=./... -coverprofile=./tests/cover.out ./...
 	@go tool cover -func ./tests/cover.out
 	@go tool cover -html ./tests/cover.out -o ./tests/cover.html
