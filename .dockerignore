@@ -1,0 +1,7 @@
+.data
+.github
+bin
+deploy
+.envrc
+tests
+vendor

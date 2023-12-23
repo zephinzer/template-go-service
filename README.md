@@ -92,12 +92,14 @@ This repository uses Makefile for storing development operations. Included opera
 - `make deploy-kind` deploys the application onto a local Kubernetes cluster
 - `make deploy-k8s` deploys the application onto the currently selected Kubernetes cluster
 - `make deps` pulls in the dependencies into `./vendor/`
-- `make docs-swaggo` generates the Swagger documentation using `swaggo`
+- `make docs` generates all documentation
+- `make docs-swaggo` generates just the Swagger documentation using `swaggo`
 - `make image` builds the Docker image
 - `make install-swaggo` installs `swaggo` at the latest version
 - `make kafka-jks` generates the keys and certificates required for Kafka security
 - `make kind-load` loads the image into the local Kubernetes cluster
 - `make nats-nkey` creates a new nkey for use with NATS
+- `make publish-image` publishes the image in it's current form using a concatenation of `${GIT_BRANCH}` and `${GIT_COMMIT_SHA}` separated by a `-` as the image tag
 - `make start` starts the HTTP server using defaults
 - `make start-kafka` starts a local Kafka instance via Docker Compose
 - `make start-kind` starts a local Kubernetes cluster with KinD
